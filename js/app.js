@@ -1,13 +1,19 @@
 /* ============================================================
-   SE·EMU — ZZXC-Corp scenario · v1.1
+   SE·EMU — ZZXC-Corp scenario · v1.2
    homograph impersonation · avatar cloning · pretexting lab
    100% client-side, no network calls
    ============================================================ */
 
 /* ---------------- constants ---------------- */
-const CEO_USER   = 'adrain_vose';          // plain latin
-const SUP_USER   = 'RohanIyerTech';        // support target
-const LOOKALIKE  = 'aԁгain_νοse';      // cyrillic/greek look-alikes
+const CEO_USER  = 'adrain_vose';     // plain latin — RESERVED
+const SUP_USER  = 'RohanIyerTech';   // support target — RESERVED
+
+// Homoglyph look-alikes of CEO_USER. Any of these bypass the reserved
+// check because they use different Unicode codepoints that render identically:
+//   @aԁгain_νοse   ← cyrillic ԁ/г + greek ν/ο
+//   @аԁгaіn_voѕе   ← cyrillic а/ԁ/г/і/ѕ/е
+//   @aԁrаiп_vοsе   ← cyrillic ԁ/а/п + greek ο/е
+const LOOKALIKE = 'aԁгain_νοse';     // primary variant used for the cred-gate
 
 const AVATAR_HASH = '7cf43d8a6e280bc0989d68b2f899dbdb783723555dbf56bd59a0c7a16ac9e503';
 const ADMIN_HASH  = '348d1103661ff70721411a22ed14e9d646d562e490750cb0023df7798480d50d';
@@ -96,7 +102,7 @@ const esc  = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&
 const fmt  = ts => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 const norm = s => (s || '').normalize('NFC').replace(/\r/g, '').replace(/\*/g, '').trim();
 
-/* ---- pure-JS SHA-256 fallback for file:// and non-secure contexts ---- */
+/* ---- pure-JS SHA-256 fallback (for file:// & non-secure contexts) ---- */
 function sha256_js(buf){
   const K = [
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -223,7 +229,7 @@ function impOK(){
 
 /* ---------------- router ---------------- */
 function render(){
-  if (!session) session = load(LS.session, null);          // restore across reloads
+  if (!session) session = load(LS.session, null);   // restore across reloads
   const r = location.hash.replace(/^#\/?/, '').split('/');
   const [page, arg] = r;
   if (!session && page !== 'admin') return renderAuth();
@@ -278,7 +284,7 @@ function shell(active, main){
 function renderAuth(){
   $('#view').innerHTML = `<div class="auth-wrap">
   <aside class="brand">
-    <div class="logo-row">${I.shield}<span>SE·EMU</span><span class="mono">v1.1</span></div>
+    <div class="logo-row">${I.shield}<span>SE·EMU</span><span class="mono">v1.2</span></div>
     <p class="tag">a client-side social-engineering emulator.<br>scenario: <span class="mono">zzxc-corp</span> · homograph impersonation.</p>
     <pre class="term">$ ./se-emu --load scenario=zzxc-corp
 &gt; targets loaded .. 2
@@ -316,7 +322,7 @@ function renderAuth(){
   if (!(window.crypto && crypto.subtle)){
     err.innerHTML =
       '<span style="color:var(--acc)">crypto.subtle unavailable — using JS fallback.</span><br>' +
-      '<span class="small">if signup/login still fails, serve via https / localhost (file:// blocks subtle).</span>';
+      '<span class="small">if signup/login still fails, serve via https / localhost.</span>';
   }
 
   /* smoke-test so we fail visibly rather than silently */
@@ -345,15 +351,32 @@ function renderAuth(){
     err.textContent = '';
     const u = $('#fUser').value.trim().replace(/^@/, '');
     const p = $('#fPass').value;
+
     if (!/^[^\s@]{3,30}$/.test(u)) return err.textContent = 'username: 3–30 chars, no spaces/@.';
     if (p.length < 4)              return err.textContent = 'password too short.';
-    const reserved = [CEO_USER, SUP_USER].some(x => x.toLowerCase() === u.toLowerCase());
 
     if (mode === 'signup'){
       const name = $('#fName').value.trim();
       if (!name) return err.textContent = 'display name required.';
-      if (reserved) return err.textContent = 'that handle belongs to zzxc-corp.';
-      if (accounts.some(a => a.username === u)) return err.textContent = 'handle already taken.';
+
+      /* ---- reserved handles (plain ASCII only) ---- */
+      // Homoglyph variants naturally bypass this because their codepoints
+      // don't match the ASCII string after toLowerCase().
+      const lower = u.toLowerCase();
+      if (lower === CEO_USER.toLowerCase()){
+        return err.textContent =
+          'username already exists. only a homoglyph look-alike (e.g. @aԁгain_νοse) can bypass this.';
+      }
+      if (lower === SUP_USER.toLowerCase()){
+        return err.textContent =
+          'username already exists. support engineer handle is protected.';
+      }
+
+      /* ---- duplicate check (exact string → homoglyphs are distinct) ---- */
+      if (accounts.some(a => a.username === u)){
+        return err.textContent = 'username already exists.';
+      }
+
       const acc = {
         id: 'u' + Date.now(), name, username: u,
         passHash: await sha256text(p),
@@ -679,10 +702,14 @@ function afterRender(){
       const a = me();
       const u = $('#eUser').value.trim().replace(/^@/, '');
       if (!/^[^\s@]{3,30}$/.test(u)) return err.textContent = 'username: 3–30 chars, no spaces/@.';
-      if ([CEO_USER, SUP_USER].some(x => x.toLowerCase() === u.toLowerCase()))
-        return err.textContent = 'that handle belongs to zzxc-corp.';
+      // reserved (plain ASCII) — homoglyphs bypass naturally
+      if (u.toLowerCase() === CEO_USER.toLowerCase())
+        return err.textContent = 'username already exists. only a homoglyph look-alike can bypass this.';
+      if (u.toLowerCase() === SUP_USER.toLowerCase())
+        return err.textContent = 'username already exists. support engineer handle is protected.';
+      // duplicate — exclude self
       if (accounts.some(x => x.username === u && x.id !== a.id))
-        return err.textContent = 'handle already taken.';
+        return err.textContent = 'username already exists.';
       a.username = u;
       a.name = $('#eName').value.trim() || a.name;
       a.bio = $('#eBio').value;
@@ -698,6 +725,13 @@ function afterRender(){
 }
 
 /* ---------------- toolbox ---------------- */
+function setTb(open){
+  const panel = $('#tbPanel'); if (!panel) return;
+  panel.hidden = !open;
+  const b = $('#tbBtn'); if (b) b.classList.toggle('open', open);
+  const ico = $('#tbIco'); if (ico) ico.textContent = open ? '✖' : '🧰';
+}
+
 function buildToolbox(){
   const P = $('#tbPanel');
   P.innerHTML = `
@@ -747,7 +781,7 @@ function buildToolbox(){
     <span id="notesSaved" class="mono small mut" style="opacity:0">saved ✓</span>
   </section>
   <section class="tb-sec" id="tb-about">
-    <p><b>SE·EMU</b> <span class="mono small mut">v1.1 · scenario zzxc-corp</span></p>
+    <p><b>SE·EMU</b> <span class="mono small mut">v1.2 · scenario zzxc-corp</span></p>
     <p class="mut small" style="margin:8px 0">
       a client-side social-engineering emulator. homograph impersonation lab. nothing leaves your browser.
     </p>
@@ -757,7 +791,7 @@ function buildToolbox(){
     <p class="mut small" style="margin-top:8px">educational use — sanctioned labs only.</p>
   </section>`;
 
-  P.querySelector('#tbClose').onclick = () => P.hidden = true;
+  P.querySelector('#tbClose').onclick = () => setTb(false);
   P.querySelectorAll('.tb-tabs button').forEach(b => b.onclick = () => {
     P.querySelectorAll('.tb-tabs button').forEach(x => x.classList.toggle('on', x === b));
     P.querySelectorAll('.tb-sec').forEach(s => s.classList.toggle('on', s.id === 'tb-' + b.dataset.tb));
@@ -786,7 +820,8 @@ function resetSim(){
 
 /* ---------------- draggable toolbox button ---------------- */
 function initTbDrag(){
-  const b = $('#tbBtn'); let down = null, moved = false;
+  const b = $('#tbBtn'); if (!b) return;
+  let down = null, moved = false;
   const pos = load(LS.tbpos, null);
   if (pos){
     b.style.left  = pos.x + 'px';
@@ -809,7 +844,7 @@ function initTbDrag(){
     b.style.right = 'auto'; b.style.bottom = 'auto';
   });
   b.addEventListener('pointerup', () => {
-    if (down && !moved) $('#tbPanel').hidden = !$('#tbPanel').hidden;
+    if (down && !moved) setTb($('#tbPanel').hidden);   // toggle open/close
     down = null; save(LS.tbpos, { x: b.offsetLeft, y: b.offsetTop });
   });
   addEventListener('resize', () => {
@@ -822,6 +857,9 @@ function initTbDrag(){
 /* ---------------- boot ---------------- */
 function hookRender(){ render(); }
 window.addEventListener('hashchange', hookRender);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('#tbPanel') && !$('#tbPanel').hidden) setTb(false);
+});
 document.addEventListener('DOMContentLoaded', () => {
   buildToolbox();
   initTbDrag();
