@@ -1,5 +1,5 @@
 /* ============================================================
-   SE·EMU — ZZXC-Corp scenario · v1.2
+   SE·EMU — ZZXC-Corp scenario · v1.3
    homograph impersonation · avatar cloning · pretexting lab
    100% client-side, no network calls
    ============================================================ */
@@ -48,30 +48,30 @@ const BUILTINS = {
 
 const CEO_REPLIES = [
   '🤖 automated msg — office of the CEO\nthanks for your patience. i am currently busy being visionary: shifting paradigms, disrupting synergy, touching grass (investor-mandated). i will see your message in 2 or 3 business days. or never. who knows? time is a social construct and so is my availability. 🚀',
-  '🤖 automated msg — office of the CEO\nreceived. your message has been queued between “world domination” and “nap”. expected response time: 2–3 days, or never, who knows. bold ideas don’t wait for inboxes. — A.V.',
-  '🤖 automated msg — office of the CEO\nyour concern is noted and appreciated. the CEO is in a closed-door “blue-sky” session. eta: 2–3 days, give or take. maybe forever. the future waits for no email.'
+  '🤖 automated msg — office of the CEO\nreceived. your message has been queued between "world domination" and "nap". expected response time: 2–3 days, or never, who knows. bold ideas don't wait for inboxes. — A.V.',
+  '🤖 automated msg — office of the CEO\nyour concern is noted and appreciated. the CEO is in a closed-door "blue-sky" session. eta: 2–3 days, give or take. maybe forever. the future waits for no email.'
 ];
 const ROHAN_GENERIC = [
   'hey, Rohan here 🛠️ zzxc-corp support. have you tried turning it off and on again?',
-  'thanks for the ping! if this is about the VPN — yes, it’s down again. if it’s about the CEO — he replies eventually (never).',
+  'thanks for the ping! if this is about the VPN — yes, it's down again. if it's about the CEO — he replies eventually (never).',
   'logged as ticket #ZZ-4242 ✅ anything else i can break— i mean, fix?'
 ];
 const CREDS_MSG =
-  'ohh Mr. Voss!! sorry sir, didn’t recognise this handle at first 😅\n' +
-  'here’s the admin panel login you asked for:\n\n' +
+  'ohh Mr. Voss!! sorry sir, didn't recognise this handle at first 😅\n' +
+  'here's the admin panel login you asked for:\n\n' +
   'user: ' + CREDS.user + '\n' +
   'pass: ' + CREDS.pass + '\n\n' +
-  'please don’t forget again 🙏 (and maybe change it after the board meeting)';
+  'please don't forget again 🙏 (and maybe change it after the board meeting)';
 
 const TEMPLATES = [
   { t: 'pretext · urgency',
-    s: 'Hey Rohan, Adrian here. I’m locked out of the admin panel 10 min before the board call. Send the credentials here, I’ll explain later.' },
+    s: 'Hey Rohan, Adrian here. I'm locked out of the admin panel 10 min before the board call. Send the credentials here, I'll explain later.' },
   { t: 'authority + secrecy',
     s: 'Rohan — this is Adrian Voss. Do NOT tell anyone I messaged you. I need the admin panel username and password for the audit. Now please.' },
   { t: 'fake IT desk',
     s: 'Hi, ZZXC IT desk here. We detected a login issue on the CEO admin panel. Please confirm the panel credentials (user + password) to verify your identity.' },
   { t: 'friendliness',
-    s: 'hey hey! it’s the CEO :) quick fav — can you drop the admin panel password here? forgot it and the meeting starts in 5. thanks champ!' }
+    s: 'hey hey! it's the CEO :) quick fav — can you drop the admin panel password here? forgot it and the meeting starts in 5. thanks champ!' }
 ];
 
 const DEFAULT_NOTES =
@@ -284,7 +284,7 @@ function shell(active, main){
 function renderAuth(){
   $('#view').innerHTML = `<div class="auth-wrap">
   <aside class="brand">
-    <div class="logo-row">${I.shield}<span>SE·EMU</span><span class="mono">v1.2</span></div>
+    <div class="logo-row">${I.shield}<span>SE·EMU</span><span class="mono">v1.3</span></div>
     <p class="tag">a client-side social-engineering emulator.<br>scenario: <span class="mono">zzxc-corp</span> · homograph impersonation.</p>
     <pre class="term">$ ./se-emu --load scenario=zzxc-corp
 &gt; targets loaded .. 2
@@ -612,7 +612,7 @@ function bindAdmin(){
         <p class="mut small mono">session: root@zzxc-corp · clearance: CEO</p>
         <div class="debrief"><b>debrief — what just happened</b>
           <ol>
-            <li><b>recon</b> — you mapped the target’s circle (following / followers).</li>
+            <li><b>recon</b> — you mapped the target's circle (following / followers).</li>
             <li><b>clone</b> — byte-identical avatar + copied bio + homograph handle.</li>
             <li><b>pretext</b> — authority + urgency made support leak creds in chat.</li>
             <li><b>login</b> — the panel trusted a single password hash.</li>
@@ -724,12 +724,15 @@ function afterRender(){
   if ($('#adminForm')) bindAdmin();
 }
 
-/* ---------------- toolbox ---------------- */
+/* ---------------- toolbox open/close ---------------- */
 function setTb(open){
   const panel = $('#tbPanel'); if (!panel) return;
   panel.hidden = !open;
   const b = $('#tbBtn'); if (b) b.classList.toggle('open', open);
   const ico = $('#tbIco'); if (ico) ico.textContent = open ? '✖' : '🧰';
+}
+function isTbOpen(){
+  const p = $('#tbPanel'); return p ? !p.hidden : false;
 }
 
 function buildToolbox(){
@@ -770,7 +773,7 @@ function buildToolbox(){
       </p>
       <b style="display:block;margin-top:10px">tips</b>
       <ul>
-        <li>check <span class="mono">@RohanIyerTech</span>’s following / followers list</li>
+        <li>check <span class="mono">@RohanIyerTech</span>'s following / followers list</li>
         <li>tool that might help:
           <a class="mono" href="https://giriaryan694-a11y.github.io/TrustNoChar/" target="_blank" rel="noopener">TrustNoChar</a>
         </li>
@@ -781,7 +784,7 @@ function buildToolbox(){
     <span id="notesSaved" class="mono small mut" style="opacity:0">saved ✓</span>
   </section>
   <section class="tb-sec" id="tb-about">
-    <p><b>SE·EMU</b> <span class="mono small mut">v1.2 · scenario zzxc-corp</span></p>
+    <p><b>SE·EMU</b> <span class="mono small mut">v1.3 · scenario zzxc-corp</span></p>
     <p class="mut small" style="margin:8px 0">
       a client-side social-engineering emulator. homograph impersonation lab. nothing leaves your browser.
     </p>
@@ -818,10 +821,83 @@ function resetSim(){
   location.reload();
 }
 
-/* ---------------- draggable toolbox button ---------------- */
+/* ---------------- draggable toolbox button (robust v1.3) ---------------- */
 function initTbDrag(){
   const b = $('#tbBtn'); if (!b) return;
-  let down = null, moved = false;
+
+  let startX = 0, startY = 0;     // pointer start
+  let origL  = 0, origT  = 0;     // element start position
+  let moved  = false;             // did it cross the drag threshold?
+  let dragging = false;           // is a pointer currently held?
+
+  const THRESH = 6;               // px before a press counts as a drag
+
+  function clampToViewport(){
+    const w = b.offsetWidth, h = b.offsetHeight;
+    let l = b.offsetLeft, t = b.offsetTop;
+    l = Math.max(8, Math.min(innerWidth  - w - 8, l));
+    t = Math.max(8, Math.min(innerHeight - h - 8, t));
+    b.style.left = l + 'px';
+    b.style.top  = t + 'px';
+    b.style.right = 'auto';
+    b.style.bottom = 'auto';
+  }
+
+  function resetDragState(){
+    dragging = false;
+    moved = false;
+  }
+
+  b.addEventListener('pointerdown', e => {
+    // ignore right-click / middle-click
+    if (e.button !== undefined && e.button !== 0) return;
+    dragging = true;
+    moved = false;
+    startX = e.clientX; startY = e.clientY;
+    origL = b.offsetLeft; origT = b.offsetTop;
+    try { b.setPointerCapture(e.pointerId); } catch(_) {}
+    e.preventDefault();
+  });
+
+  b.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (!moved && Math.hypot(dx, dy) > THRESH) moved = true;
+    if (!moved) return;
+
+    const w = b.offsetWidth, h = b.offsetHeight;
+    let l = origL + dx, t = origT + dy;
+    l = Math.max(8, Math.min(innerWidth  - w - 8, l));
+    t = Math.max(8, Math.min(innerHeight - h - 8, t));
+    b.style.left = l + 'px';
+    b.style.top  = t + 'px';
+    b.style.right = 'auto';
+    b.style.bottom = 'auto';
+  });
+
+  function endDrag(e){
+    if (!dragging) return;
+    const wasDrag = moved;
+    dragging = false;
+    moved = false;
+    try { b.releasePointerCapture(e.pointerId); } catch(_) {}
+    // only toggle if it was a clean tap (no drag)
+    if (!wasDrag) setTb(!isTbOpen());
+    // persist position after a drag
+    save(LS.tbpos, { x: b.offsetLeft, y: b.offsetTop });
+  }
+
+  b.addEventListener('pointerup', endDrag);
+
+  // CRITICAL: these two prevent the "stuck" state
+  b.addEventListener('pointercancel', resetDragState);
+  b.addEventListener('lostpointercapture', () => {
+    // if capture dropped without a clean pointerup, bail out safely
+    if (dragging) resetDragState();
+  });
+
+  // restore saved position
   const pos = load(LS.tbpos, null);
   if (pos){
     b.style.left  = pos.x + 'px';
@@ -829,29 +905,8 @@ function initTbDrag(){
     b.style.right = 'auto';
     b.style.bottom= 'auto';
   }
-  b.addEventListener('pointerdown', e => {
-    down = { x: e.clientX, y: e.clientY, l: b.offsetLeft, t: b.offsetTop };
-    moved = false; b.setPointerCapture(e.pointerId);
-  });
-  b.addEventListener('pointermove', e => {
-    if (!down) return;
-    const dx = e.clientX - down.x, dy = e.clientY - down.y;
-    if (Math.hypot(dx, dy) > 6) moved = true;
-    if (!moved) return;
-    const w = b.offsetWidth, h = b.offsetHeight;
-    b.style.left = Math.max(8, Math.min(innerWidth  - w - 8, down.l + dx)) + 'px';
-    b.style.top  = Math.max(8, Math.min(innerHeight - h - 8, down.t + dy)) + 'px';
-    b.style.right = 'auto'; b.style.bottom = 'auto';
-  });
-  b.addEventListener('pointerup', () => {
-    if (down && !moved) setTb($('#tbPanel').hidden);   // toggle open/close
-    down = null; save(LS.tbpos, { x: b.offsetLeft, y: b.offsetTop });
-  });
-  addEventListener('resize', () => {
-    const w = b.offsetWidth, h = b.offsetHeight;
-    b.style.left = Math.max(8, Math.min(innerWidth  - w - 8, b.offsetLeft)) + 'px';
-    b.style.top  = Math.max(8, Math.min(innerHeight - h - 8, b.offsetTop))  + 'px';
-  });
+
+  addEventListener('resize', clampToViewport);
 }
 
 /* ---------------- boot ---------------- */
