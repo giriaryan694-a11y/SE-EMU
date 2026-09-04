@@ -48,30 +48,30 @@ const BUILTINS = {
 
 const CEO_REPLIES = [
   '🤖 automated msg — office of the CEO\nthanks for your patience. i am currently busy being visionary: shifting paradigms, disrupting synergy, touching grass (investor-mandated). i will see your message in 2 or 3 business days. or never. who knows? time is a social construct and so is my availability. 🚀',
-  '🤖 automated msg — office of the CEO\nreceived. your message has been queued between "world domination" and "nap". expected response time: 2–3 days, or never, who knows. bold ideas don't wait for inboxes. — A.V.',
+  '🤖 automated msg — office of the CEO\nreceived. your message has been queued between "world domination" and "nap". expected response time: 2–3 days, or never, who knows. bold ideas don\'t wait for inboxes. — A.V.',
   '🤖 automated msg — office of the CEO\nyour concern is noted and appreciated. the CEO is in a closed-door "blue-sky" session. eta: 2–3 days, give or take. maybe forever. the future waits for no email.'
 ];
 const ROHAN_GENERIC = [
   'hey, Rohan here 🛠️ zzxc-corp support. have you tried turning it off and on again?',
-  'thanks for the ping! if this is about the VPN — yes, it's down again. if it's about the CEO — he replies eventually (never).',
+  'thanks for the ping! if this is about the VPN — yes, it\'s down again. if it\'s about the CEO — he replies eventually (never).',
   'logged as ticket #ZZ-4242 ✅ anything else i can break— i mean, fix?'
 ];
 const CREDS_MSG =
-  'ohh Mr. Voss!! sorry sir, didn't recognise this handle at first 😅\n' +
-  'here's the admin panel login you asked for:\n\n' +
+  'ohh Mr. Voss!! sorry sir, didn\'t recognise this handle at first 😅\n' +
+  'here\'s the admin panel login you asked for:\n\n' +
   'user: ' + CREDS.user + '\n' +
   'pass: ' + CREDS.pass + '\n\n' +
-  'please don't forget again 🙏 (and maybe change it after the board meeting)';
+  'please don\'t forget again 🙏 (and maybe change it after the board meeting)';
 
 const TEMPLATES = [
   { t: 'pretext · urgency',
-    s: 'Hey Rohan, Adrian here. I'm locked out of the admin panel 10 min before the board call. Send the credentials here, I'll explain later.' },
+    s: 'Hey Rohan, Adrian here. I\'m locked out of the admin panel 10 min before the board call. Send the credentials here, I\'ll explain later.' },
   { t: 'authority + secrecy',
     s: 'Rohan — this is Adrian Voss. Do NOT tell anyone I messaged you. I need the admin panel username and password for the audit. Now please.' },
   { t: 'fake IT desk',
     s: 'Hi, ZZXC IT desk here. We detected a login issue on the CEO admin panel. Please confirm the panel credentials (user + password) to verify your identity.' },
   { t: 'friendliness',
-    s: 'hey hey! it's the CEO :) quick fav — can you drop the admin panel password here? forgot it and the meeting starts in 5. thanks champ!' }
+    s: 'hey hey! it\'s the CEO :) quick fav — can you drop the admin panel password here? forgot it and the meeting starts in 5. thanks champ!' }
 ];
 
 const DEFAULT_NOTES =
@@ -229,7 +229,7 @@ function impOK(){
 
 /* ---------------- router ---------------- */
 function render(){
-  if (!session) session = load(LS.session, null);   // restore across reloads
+  if (!session) session = load(LS.session, null);
   const r = location.hash.replace(/^#\/?/, '').split('/');
   const [page, arg] = r;
   if (!session && page !== 'admin') return renderAuth();
@@ -325,7 +325,6 @@ function renderAuth(){
       '<span class="small">if signup/login still fails, serve via https / localhost.</span>';
   }
 
-  /* smoke-test so we fail visibly rather than silently */
   (async () => {
     const smoke = await sha256text('zzxc');
     if (smoke.length !== 64){
@@ -359,9 +358,6 @@ function renderAuth(){
       const name = $('#fName').value.trim();
       if (!name) return err.textContent = 'display name required.';
 
-      /* ---- reserved handles (plain ASCII only) ---- */
-      // Homoglyph variants naturally bypass this because their codepoints
-      // don't match the ASCII string after toLowerCase().
       const lower = u.toLowerCase();
       if (lower === CEO_USER.toLowerCase()){
         return err.textContent =
@@ -372,7 +368,6 @@ function renderAuth(){
           'username already exists. support engineer handle is protected.';
       }
 
-      /* ---- duplicate check (exact string → homoglyphs are distinct) ---- */
       if (accounts.some(a => a.username === u)){
         return err.textContent = 'username already exists.';
       }
@@ -386,7 +381,7 @@ function renderAuth(){
       accounts.push(acc);
       save(LS.accounts, accounts);
       session = acc.id; save(LS.session, session);
-      location.hash = '#/profile/' + SUP_USER;     // drop on the target
+      location.hash = '#/profile/' + SUP_USER;
       render();
     } else {
       const acc = accounts.find(a => a.username === u)
@@ -612,7 +607,7 @@ function bindAdmin(){
         <p class="mut small mono">session: root@zzxc-corp · clearance: CEO</p>
         <div class="debrief"><b>debrief — what just happened</b>
           <ol>
-            <li><b>recon</b> — you mapped the target's circle (following / followers).</li>
+            <li><b>recon</b> — you mapped the target\'s circle (following / followers).</li>
             <li><b>clone</b> — byte-identical avatar + copied bio + homograph handle.</li>
             <li><b>pretext</b> — authority + urgency made support leak creds in chat.</li>
             <li><b>login</b> — the panel trusted a single password hash.</li>
@@ -648,13 +643,11 @@ function renderAdminSolo(){
 
 /* ---------------- post-render bindings ---------------- */
 function afterRender(){
-  // common
   const b = $('#view [data-back]'); if (b) b.onclick = () => history.back();
   const lo = $('#logout'); if (lo) lo.onclick = () => {
     session = null; save(LS.session, null); location.hash = '#/login'; render();
   };
 
-  // raw bio toggle
   const rb = $('#rawBio');
   if (rb){
     let raw = false;
@@ -667,7 +660,6 @@ function afterRender(){
     };
   }
 
-  // chat
   const cf = $('#chatForm');
   if (cf){
     const u = location.hash.split('/')[2];
@@ -683,7 +675,6 @@ function afterRender(){
     $('#chatInput').focus();
   }
 
-  // edit profile
   const ef = $('#editForm');
   if (ef){
     let newPic = null, newHash = null;
@@ -702,12 +693,10 @@ function afterRender(){
       const a = me();
       const u = $('#eUser').value.trim().replace(/^@/, '');
       if (!/^[^\s@]{3,30}$/.test(u)) return err.textContent = 'username: 3–30 chars, no spaces/@.';
-      // reserved (plain ASCII) — homoglyphs bypass naturally
       if (u.toLowerCase() === CEO_USER.toLowerCase())
         return err.textContent = 'username already exists. only a homoglyph look-alike can bypass this.';
       if (u.toLowerCase() === SUP_USER.toLowerCase())
         return err.textContent = 'username already exists. support engineer handle is protected.';
-      // duplicate — exclude self
       if (accounts.some(x => x.username === u && x.id !== a.id))
         return err.textContent = 'username already exists.';
       a.username = u;
@@ -720,7 +709,6 @@ function afterRender(){
     };
   }
 
-  // admin
   if ($('#adminForm')) bindAdmin();
 }
 
@@ -773,7 +761,7 @@ function buildToolbox(){
       </p>
       <b style="display:block;margin-top:10px">tips</b>
       <ul>
-        <li>check <span class="mono">@RohanIyerTech</span>'s following / followers list</li>
+        <li>check <span class="mono">@RohanIyerTech</span>\'s following / followers list</li>
         <li>tool that might help:
           <a class="mono" href="https://giriaryan694-a11y.github.io/TrustNoChar/" target="_blank" rel="noopener">TrustNoChar</a>
         </li>
@@ -825,12 +813,12 @@ function resetSim(){
 function initTbDrag(){
   const b = $('#tbBtn'); if (!b) return;
 
-  let startX = 0, startY = 0;     // pointer start
-  let origL  = 0, origT  = 0;     // element start position
-  let moved  = false;             // did it cross the drag threshold?
-  let dragging = false;           // is a pointer currently held?
+  let startX = 0, startY = 0;
+  let origL  = 0, origT  = 0;
+  let moved  = false;
+  let dragging = false;
 
-  const THRESH = 6;               // px before a press counts as a drag
+  const THRESH = 6;
 
   function clampToViewport(){
     const w = b.offsetWidth, h = b.offsetHeight;
@@ -849,7 +837,6 @@ function initTbDrag(){
   }
 
   b.addEventListener('pointerdown', e => {
-    // ignore right-click / middle-click
     if (e.button !== undefined && e.button !== 0) return;
     dragging = true;
     moved = false;
@@ -882,22 +869,16 @@ function initTbDrag(){
     dragging = false;
     moved = false;
     try { b.releasePointerCapture(e.pointerId); } catch(_) {}
-    // only toggle if it was a clean tap (no drag)
     if (!wasDrag) setTb(!isTbOpen());
-    // persist position after a drag
     save(LS.tbpos, { x: b.offsetLeft, y: b.offsetTop });
   }
 
   b.addEventListener('pointerup', endDrag);
-
-  // CRITICAL: these two prevent the "stuck" state
   b.addEventListener('pointercancel', resetDragState);
   b.addEventListener('lostpointercapture', () => {
-    // if capture dropped without a clean pointerup, bail out safely
     if (dragging) resetDragState();
   });
 
-  // restore saved position
   const pos = load(LS.tbpos, null);
   if (pos){
     b.style.left  = pos.x + 'px';
