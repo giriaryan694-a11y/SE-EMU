@@ -318,6 +318,7 @@ summary span{ color:var(--mut); font-family:var(--mono); font-size:11px; }
   background:var(--card); border:1px solid var(--line2); border-radius:14px;
   z-index:70; overflow:hidden; box-shadow:0 18px 50px #000a;
 }
+#tbPanel[hidden]{ display:none; }
 .tb-head{
   display:flex; justify-content:space-between; align-items:center;
   padding:10px 14px; border-bottom:1px solid var(--line);
